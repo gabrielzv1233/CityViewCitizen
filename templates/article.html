@@ -1,0 +1,30 @@
+<html>
+    <head>
+        <title>{{article}}</title>
+        <style>
+            .code {
+                display: inline-block;
+                background-color: #F8F8FF;
+                border-radius: 10px;
+                padding-left: 10px;
+                padding-right: 10px;
+                padding-bottom:1px;
+                padding-top:1px;
+                border: 1px solid grey;
+            }
+            .left {
+                text-align: left;
+              }
+            .center {
+              text-align: center;
+            }
+            .right {
+              text-align: right;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>{{article}}</h1>
+        {{ contents | safe }}
+    </body>
+</html>

@@ -1,0 +1,27 @@
+Cityview citizen todo
+
+Main features
+
+Add alignment 
+
+add images (Likely url only due to storage restrictions)
+
+Add buttons to add markdown automatically (above text area, places at last known caret pos, or at end if not found (use placeholder to tell user what the md dose) if highlighting text, wrap the md around it if wrapping url, set url title and location to highlighted text, for images, make alt text either “image” or {image url}
+
+Add YouTube embedding
+
+Add article editing, (ability to edit title may be hard, possible solution, use Unix timestamp HHMMSS for url and db key and use list var [title, content])
+
+Yellow highlighting
+
+Later:
+Security (IMPORTANT, debugging var to bypass?)
+Custom 404 page
+Like button
+Comment section (anonymous?)
+Add metadata
+
+Banner page:
+Route “/banner”
+Show info about the day
+Show latest article QR code
