@@ -1,5 +1,148 @@
+<style>
+    body {
+        margin:0;
+        overflow: hidden;
+    }
+    .styling_buttons_container {
+        width: 30vw;
+        display: flex;
+        justify-content: space-between;
+        padding: 0 15%;
+        text-align: center;
+        margin: 0 auto;
+        margin-top:5px;
+        margin-bottom:5px;
+    }
+    
+    .styling_buttons {
+        flex: 0 0 calc(90% / 4);
+        border-radius:10px;
+        text-align: center;
+    }
+
+    #form_footer {
+        width:100vw;
+        margin-top:5px;
+        margin-bottom:5px;
+    }
+
+    .form_buttons {
+        width: calc(50% - 4px);
+        border-radius:10px; 
+        margin:0px;
+    }
+    form {
+        text-align: center;
+    }
+</style>
 <form method="POST" action="/post" style="display: flex; flex-direction: column; align-items: center;">
-    <input style="width: 100%; font-size: 24px;" placeholder="title" type="text" name="title">
-    <textarea style="width: 100%; height: calc(100vh - 150px); resize: vertical; font-size: 16px;" placeholder="contents" name="contents"></textarea>
-    <input style="width: 100%; margin-top: 10px;" type="submit" value="Submit">
+    <span id="form_header">
+    <input style="width: 100vw; font-size: 24px; border-radius:10px;" placeholder="title" type="text" name="title">
+    <div class="styling_buttons_container">
+        <button class="styling_buttons" type="button" onclick="addFormatting('**', '**')" title="Bold">Bold</button><button class="styling_buttons" type="button" onclick="addFormatting('*', '*')" title="Italic">Italic</button><button class="styling_buttons" type="button" onclick="addHeading('#')" title="Heading">Header</button><button class="styling_buttons" type="button" onclick="addLink()" title="Link">Link</button>
+    </div>
+</span>
+    <textarea id="contents" style="width: 100%; resize: vertical; font-size: 16px; border-radius:10px; resize:none;" placeholder="contents" name="contents"></textarea>
+    <span id="form_footer">
+        <button class="form_buttons" type="button" onclick="openPreview()">Preview</button><input class="form_buttons" type="submit" value="Submit">
+    </span>
 </form>
+
+<script>
+    function addFormatting(startTag, endTag) {
+        var textarea = document.querySelector('textarea[name="contents"]');
+        var startPos = textarea.selectionStart;
+        var endPos = textarea.selectionEnd;
+        var selectedText = textarea.value.substring(startPos, endPos);
+        var placeholderText = "Text";
+    
+        if (selectedText === "") {
+            if (startTag === "*") {
+                placeholderText = "italic";
+            } else if (startTag === "**") {
+                placeholderText = "bold";
+            }
+            // Set selectedText to placeholderText when it's empty
+            selectedText = placeholderText;
+        }
+    
+        var replacement = startTag + selectedText + endTag;
+        textarea.value = textarea.value.substring(0, startPos) + replacement + textarea.value.substring(endPos);
+    
+        // Adjust the selection range based on the added tags
+        textarea.setSelectionRange(startPos + startTag.length, startPos + startTag.length + selectedText.length);
+    }
+    
+
+
+    function addHeading(headingTag) {
+        var textarea = document.querySelector('textarea[name="contents"]');
+        var startPos = textarea.selectionStart;
+        var endPos = textarea.selectionEnd;
+        var selectedText = textarea.value.substring(startPos, endPos);
+        if (selectedText === "") {
+            selectedText = "Head";
+        }
+        var replacement = headingTag + selectedText + headingTag;
+        textarea.value = textarea.value.substring(0, startPos) + replacement + textarea.value.substring(endPos);
+    }
+
+    function addLink() {
+        var textarea = document.querySelector('textarea[name="contents"]');
+        var startPos = textarea.selectionStart;
+        var endPos = textarea.selectionEnd;
+        var selectedText = textarea.value.substring(startPos, endPos);
+
+        var linkTitle = selectedText;
+        var linkURL = selectedText;
+
+        if (selectedText === "") {
+            linkTitle = "link title";
+            linkURL = "link";
+        }
+
+        var replacement = '(' + linkTitle + ')[' + linkURL + ']';
+        textarea.value = textarea.value.substring(0, startPos) + replacement + textarea.value.substring(endPos);
+    }
+    
+    function openPreview() {
+        var form = document.querySelector('form');
+        form.setAttribute('target', '_blank');
+        form.setAttribute('action', '/preview');
+        form.submit();
+        form.removeAttribute('target');
+        form.setAttribute('action', '/post');
+    }
+    // Get references to the form elements by their IDs
+    var formFooter = document.getElementById("form_footer");
+    var formHeight = document.getElementById("form_header");
+    var contents = document.getElementById("contents");
+    
+    // Calculate the desired height
+    var windowHeight = window.innerHeight;
+    var footerHeight = formFooter.offsetHeight;
+    var formHeight = formHeight.offsetHeight;
+    
+    var desiredHeight = windowHeight - footerHeight - formHeight - 10;
+    
+    // Set the height of the "contents" element
+    contents.style.height = desiredHeight + "px";
+
+    // Get reference to the textbox element
+    var textbox = document.getElementById("contents");
+
+    // Disable the default behavior of the Tab key
+    textbox.addEventListener("keydown", function(event) {
+        if (event.key === "Tab") {
+            event.preventDefault();
+            var start = this.selectionStart;
+            var end = this.selectionEnd;
+
+            // Insert the half indent (two spaces)
+            this.value = this.value.substring(0, start) + "  " + this.value.substring(end);
+
+            // Set the new cursor position
+            this.selectionStart = this.selectionEnd = start + 2;
+        }
+    });
+</script>
