@@ -4,9 +4,7 @@ Main features
 
 add images (Likely url only due to storage restrictions)
 
-Add article editing, (ability to edit title may be hard, possible solution, use Unix timestamp HHMMSS for url and db key and use list var [title, content])
-
-Yellow highlighting
+add article deleting
 
 Later:
 Security (IMPORTANT, debugging var to bypass?)

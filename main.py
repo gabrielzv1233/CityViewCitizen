@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, make_response, abort
+from flask import Flask, render_template, request, make_response, render_template_string
 from markupsafe import escape
 import shelve
 import re
@@ -34,17 +34,89 @@ def format(contents):
     
     return contents
 
-
 @app.errorhandler(404)
 def page_not_found(error):
     return render_template('404.html', e="404 Page Not Found"), 404
 
 @app.route("/")
 def home():
-    return render_template("makearticle.html")
+    return render_template("makearticle.html", title="", contents="", og_title="", post_route="/_post")
     
-@app.route("/post", methods=["POST"], strict_slashes=False)
-def post():
+@app.route("/posts/edit/<string:article>", strict_slashes=False)
+def edit(article):
+    if not article:
+        return render_template('404.html', e="404 Article Not Found"), 404 
+    db = shelve.open('databases/articles/articles')
+    if article in db:
+        contents = db[article]
+        return render_template("makearticle.html", title=article, contents=contents, og_title=article, post_route="/_edit")
+    else:
+        return render_template('404.html', e="404 Article Not Found"), 404
+    
+@app.route("/posts", strict_slashes=False)
+def posts():
+    # Open the Shelve database
+    db = shelve.open('databases/articles/articles')
+
+    # Get all keys from the database
+    keys = list(db.keys())
+
+    # Check if the editor variable is True
+    editor = True
+    if editor:
+        # Create a list of buttons
+        buttons = []
+        for key in keys:
+            # Create the URL for the edit button
+            edit_url = f"/posts/edit/{key}"
+            # Create the URL for the view button
+            post_url = f"/post{key}"
+            # Create the button element
+            button = f'{key} <button onclick="window.location.href=\'{post_url}\'">View post</button> <button onclick="window.location.href=\'{edit_url}\'">Edit post</button>'
+            # Add the button to the list
+            buttons.append(button)
+        
+        # Join the buttons with new lines
+        buttons_html = '<br>'.join(buttons)
+    else:
+        # Create a list of buttons
+        buttons = []
+        for key in keys:
+            # Create the URL for the veiw button
+            post_url = f"/post/{key}"
+            # Create the button element
+            button = f'{key} <button onclick="window.location.href=\'{post_url}\'">View post</button>'
+            # Add the button to the list
+            buttons.append(button)
+        
+        # Join the buttons with new lines
+        buttons_html = '<br>'.join(buttons)
+
+    # Close the Shelve database
+    db.close()
+
+    # Render the template with the buttons HTML
+    return render_template_string('{{ buttons_html | safe }}', buttons_html=buttons_html)
+
+@app.route("/_edit", methods=["POST"], strict_slashes=False)
+def make_edit():
+    og_title = request.form["og-title"]
+    title = request.form["title"]
+    contents = request.form["contents"]
+    db = shelve.open('databases/articles/articles')
+    if title not in db:
+        return "<script>alert('Article not found');history.go(-1);</script>"
+    if title == "":
+        return "<script>alert('Title cannot be blank');history.go(-1);</script>"
+    if og_title != title:
+        del db[og_title]
+    db[title] = contents
+    response = make_response("Article edited")
+    response.headers["Location"] = f"/post/{title}"
+    return response, 302
+
+@app.route("/_post", methods=["POST"], strict_slashes=False)
+def make_post():
     title = request.form["title"]
     contents = request.form["contents"]
     db = shelve.open('databases/articles/articles')
@@ -64,8 +136,8 @@ def preview():
     contents = format(contents)
     return render_template("article.html", article=title, contents=contents)
 
-@app.route("/article/<string:article>", strict_slashes=False)
-def articles(article):
+@app.route("/post/<string:article>", strict_slashes=False)
+def post(article):
     if not article:
         return render_template('404.html', e="404 Article Not Found"), 404 
     db = shelve.open('databases/articles/articles')

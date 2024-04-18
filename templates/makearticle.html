@@ -1,6 +1,6 @@
 <style>
     body {
-        margin:0;
+        margin:3;
         overflow: hidden;
     }
     .styling_buttons_container {
@@ -15,7 +15,7 @@
     }
     
     .styling_buttons {
-        flex: 0 0 calc(90% / 4);
+        flex: 0 0 calc(90% / 5);
         border-radius:10px;
         text-align: center;
     }
@@ -27,7 +27,7 @@
     }
 
     .form_buttons {
-        width: calc(50% - 4px);
+        width: calc(50% - 5px);
         border-radius:10px; 
         margin:0px;
     }
@@ -35,14 +35,16 @@
         text-align: center;
     }
 </style>
-<form method="POST" action="/post" style="display: flex; flex-direction: column; align-items: center;">
+<form method="POST" action="{{post_route}}" style="display: flex; flex-direction: column; align-items: center;">
+    
     <span id="form_header">
-    <input style="width: 100vw; font-size: 24px; border-radius:10px;" placeholder="title" type="text" name="title">
+        <input value="{{og_title}}" type="hidden" name="og-title">
+        <input style="width: 100vw; font-size: 24px; border-radius:10px;" value="{{title}}"placeholder="title" type="text" name="title">
     <div class="styling_buttons_container">
-        <button class="styling_buttons" type="button" onclick="addFormatting('**', '**')" title="Bold">Bold</button><button class="styling_buttons" type="button" onclick="addFormatting('*', '*')" title="Italic">Italic</button><button class="styling_buttons" type="button" onclick="addHeading('#')" title="Heading">Header</button><button class="styling_buttons" type="button" onclick="addLink()" title="Link">Link</button>
+        <button class="styling_buttons" type="button" onclick="addFormatting('**', '**')" title="Bold">Bold</button><button class="styling_buttons" type="button" onclick="addFormatting('*', '*')" title="Italic">Italic</button><button class="styling_buttons" type="button" onclick="addHeading('#')" title="Heading">Header</button><button class="styling_buttons" type="button" onclick="addFormatting('- |', '')" title="Italic">Bullet point</button><button class="styling_buttons" type="button" onclick="addLink()" title="Link">Link</button>
     </div>
 </span>
-    <textarea id="contents" style="width: 100%; resize: vertical; font-size: 16px; border-radius:10px; resize:none;" placeholder="contents" name="contents"></textarea>
+    <textarea id="contents" style="width: 100%; resize: vertical; font-size: 16px; border-radius:10px; resize:none;" placeholder="contents" name="contents">{{contents}}</textarea>
     <span id="form_footer">
         <button class="form_buttons" type="button" onclick="openPreview()">Preview</button><input class="form_buttons" type="submit" value="Submit">
     </span>
@@ -61,6 +63,8 @@
                 placeholderText = "italic";
             } else if (startTag === "**") {
                 placeholderText = "bold";
+            } else if (startTag === "- |") {
+                placeholderText = "Bullet point";
             }
             // Set selectedText to placeholderText when it's empty
             selectedText = placeholderText;
@@ -71,6 +75,7 @@
     
         // Adjust the selection range based on the added tags
         textarea.setSelectionRange(startPos + startTag.length, startPos + startTag.length + selectedText.length);
+        textarea.focus();
     }
     
 
@@ -85,6 +90,7 @@
         }
         var replacement = headingTag + selectedText + headingTag;
         textarea.value = textarea.value.substring(0, startPos) + replacement + textarea.value.substring(endPos);
+        textarea.focus();
     }
 
     function addLink() {
@@ -103,6 +109,7 @@
 
         var replacement = '(' + linkTitle + ')[' + linkURL + ']';
         textarea.value = textarea.value.substring(0, startPos) + replacement + textarea.value.substring(endPos);
+        textarea.focus();
     }
     
     function openPreview() {
@@ -142,7 +149,7 @@
             this.value = this.value.substring(0, start) + "  " + this.value.substring(end);
 
             // Set the new cursor position
-            this.selectionStart = this.selectionEnd = start + 2;
+            this.selectionStart = this.selectionEnd = start + 5;
         }
     });
 </script>
