@@ -1,9 +1,12 @@
-from flask import Flask, render_template, request, make_response, url_for
+from flask import Flask, render_template, request, make_response, redirect
 from markupsafe import escape
 import shelve
 import re
 import datetime
 import uuid
+import os
+from PIL import Image
+from werkzeug.utils import secure_filename
 
 db = shelve.open("databases/users/userdata")
 if not "Admin" in db.keys():
@@ -45,6 +48,55 @@ def format(contents):
 @app.errorhandler(404)
 def page_not_found(error):
     return render_template('404.html', e="404 Page Not Found"), 404
+
+IMAGE_DIR = "static/images/"
+
+@app.route("/upload_image", methods=["POST"])
+def upload_image():
+    if "image" in request.files:
+        image = request.files["image"]
+        if image.filename != "":
+            # Secure the original filename
+            original_filename = secure_filename(image.filename)
+
+            # Generate a unique filename with UUID
+            filename = str(uuid.uuid4()) + os.path.splitext(original_filename)[1]
+            filepath = os.path.join(IMAGE_DIR, filename)
+            image.save(filepath)
+
+            # Create the image URL
+            image_url = f"/{IMAGE_DIR}{filename}"
+
+            # Get image width and height
+            with Image.open(filepath) as img:
+                width, height = img.size
+
+            # Store image data using shelve
+            with shelve.open("databases/images/imagedata") as db:
+                db[filename] = {
+                    "filename": original_filename,
+                    "url": image_url,
+                    "width": width,
+                    "height": height,
+                }
+
+            # Redirect back to the /upload page
+            return redirect("/upload")
+
+    return redirect("/upload")
+
+
+@app.route("/upload", methods=["GET", "POST"])
+def upload():
+    domain = request.headers.get('Host')
+    if request.method == "POST" and "image" in request.files:
+        return redirect("/upload_image")
+
+    # Get the list of uploaded images
+    image_files = os.listdir(IMAGE_DIR)
+    image_urls = [f"http://{domain}/{IMAGE_DIR}{filename}" for filename in image_files]
+
+    return render_template("upload.html", image_urls=image_urls)
 
 @app.route("/dashboard", strict_slashes=False)
 def dashboard():
