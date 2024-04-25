@@ -2,12 +2,16 @@ Cityview citizen todo
 
 Main features
 
-add images (Likely url only due to storage restrictions)
+in editor image buttons
+
+comments on images
+
+filesize in mb on images for /upload
 
 add article deleting
 
 Later:
-Security (IMPORTANT, debugging var to bypass?)
+Security (some things not implmented yet)
 Like button
 Comment section (anonymous?)
 Add metadata

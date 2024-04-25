@@ -2,6 +2,7 @@
 <html>
 <head>
     <title>Image Upload</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <style>
         .image-grid {
             display: flex;
@@ -11,8 +12,9 @@
         }
 
         .image-grid img {
-            max-width: 50px;
-            max-height: 50px;
+            max-width: 150px;
+            max-height: 150px;
+            min-width: 150px;
             margin: 5px;
             cursor: pointer;
         }
@@ -96,21 +98,34 @@
     
     function showModal(image) {
       modal.style.display = "flex";
-      const filename = image.getAttribute("data-filename");
       const url = image.getAttribute("src");
       const width = image.naturalWidth;
       const height = image.naturalHeight;
       modalContent.innerHTML = `
-          <div class="right-element">
-              <p>Filename: ${filename}</p>
-              <p>URL: ${url}</p>
-              <p>Width: ${width}</p>
-              <p>Height: ${height}</p>
-          </div>
-          <img id="modal-image" src="${url}" alt="Full Resolution Image" style="max-width: 100%; max-height: 100vh;">
+        <div class="right-element">
+          <p>URL: ${url}</p>
+          <p>Width: ${width}</p>
+          <p>Height: ${height}</p>
+          <button id="copy-button">Copy inmage insert</button>
+        </div>
+        <img id="modal-image" src="${url}" alt="Full Resolution Image" style="max-width: 100%; max-height: 100vh;">
       `;
       clearTimeout(resizeTimeout);
       resizeTimeout = setTimeout(updateModalImageSize, 500);
+    
+      const copyButton = document.getElementById("copy-button");
+      copyButton.addEventListener("click", () => {
+        const textToCopy = "!()[" + url + "]";
+        const textarea = document.createElement("textarea");
+        textarea.value = textToCopy;
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand("copy");
+        document.body.removeChild(textarea);
+    
+        console.log("Copied to clipboard:", textToCopy);
+        // You can add a visual indicator or display a message to indicate successful copy
+      });
     }
 
     function updateModalImageSize() {

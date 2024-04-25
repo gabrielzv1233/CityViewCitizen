@@ -72,7 +72,7 @@ def upload_image():
                 width, height = img.size
 
             # Store image data using shelve
-            with shelve.open("databases/images/imagedata") as db:
+            with shelve.open("static/images/imagedata") as db:
                 db[filename] = {
                     "filename": original_filename,
                     "url": image_url,
@@ -81,12 +81,12 @@ def upload_image():
                 }
 
             # Redirect back to the /upload page
-            return redirect("/upload")
+            return redirect("/dashboard/upload")
 
-    return redirect("/upload")
+    return redirect("/dashboard/upload")
 
 
-@app.route("/upload", methods=["GET", "POST"])
+@app.route("/dashboard/upload", methods=["GET", "POST"])
 def upload():
     domain = request.headers.get('Host')
     if request.method == "POST" and "image" in request.files:

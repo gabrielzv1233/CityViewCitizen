@@ -1,0 +1,5 @@
+Flask
+MarkupSafe
+shelve
+Pillow
+Werkzeug
