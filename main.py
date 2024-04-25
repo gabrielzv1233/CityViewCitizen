@@ -8,6 +8,15 @@ import os
 from PIL import Image
 from werkzeug.utils import secure_filename
 
+folders = ["databases/articles", "databases/settings", "databases/users", "static/images"]
+
+for folder in folders:
+    if not os.path.exists(folder):
+        os.makedirs(folder)
+        print(f"Created folder: {folder}")
+    else:
+        print(f"Folder already exists: {folder}")
+
 db = shelve.open("databases/users/userdata")
 if not "Admin" in db.keys():
     db["Admin"] = ["CHANGE-ME", str(uuid.uuid4()), True]
